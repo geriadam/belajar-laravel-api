@@ -1,4 +1,5 @@
 <?php
+use App\Model\Product;
 
 /*
 |--------------------------------------------------------------------------
@@ -12,13 +13,15 @@
 */
 
 /** @var \Illuminate\Database\Eloquent\Factory $factory */
-$factory->define(App\Reviews::class, function (Faker\Generator $faker) {
+$factory->define(App\Model\Review::class, function (Faker\Generator $faker) {
     static $password;
 
     return [
-        'name' => $faker->name,
-        'email' => $faker->unique()->safeEmail,
-        'password' => $password ?: $password = bcrypt('secret'),
-        'remember_token' => str_random(10),
+        'product_id' => function(){
+        	return Product::all()->random();
+        },
+		'customer' => $faker->name,
+		'review'   => $faker->paragraph,
+		'star'     => $faker->numberBetween(0,5),
     ];
 });
