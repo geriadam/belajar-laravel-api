@@ -162,8 +162,6 @@ class Application
             } else {
                 $exitCode = 1;
             }
-
-            return $exitCode;
         } finally {
             // if the exception handler changed, keep it
             // otherwise, unregister $renderException
@@ -784,6 +782,13 @@ class Application
 
                 // exception related properties
                 $trace = $e->getTrace();
+
+                array_unshift($trace, array(
+                    'function' => '',
+                    'file' => $e->getFile() ?: 'n/a',
+                    'line' => $e->getLine() ?: 'n/a',
+                    'args' => array(),
+                ));
 
                 for ($i = 0, $count = \count($trace); $i < $count; ++$i) {
                     $class = isset($trace[$i]['class']) ? $trace[$i]['class'] : '';

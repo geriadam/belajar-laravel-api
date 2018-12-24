@@ -776,6 +776,20 @@ class ApplicationTest extends TestCase
         $this->assertStringMatchesFormatFile(self::$fixturesPath.'/application_renderexception_linebreaks.txt', $tester->getDisplay(true), '->renderException() keep multiple line breaks');
     }
 
+    public function testRenderExceptionStackTraceContainsRootException()
+    {
+        $application = new Application();
+        $application->setAutoExit(false);
+        $application->register('foo')->setCode(function () {
+            throw new \Exception('Verbose exception');
+        });
+
+        $tester = new ApplicationTester($application);
+        $tester->run(array('command' => 'foo'), array('decorated' => false, 'verbosity' => Output::VERBOSITY_VERBOSE));
+
+        $this->assertContains(sprintf('() at %s:', __FILE__), $tester->getDisplay());
+    }
+
     public function testRun()
     {
         $application = new Application();
@@ -918,8 +932,7 @@ class ApplicationTest extends TestCase
 
         // We can assume here that some other test asserts that the event is dispatched at all
         $dispatcher = new EventDispatcher();
-        $self = $this;
-        $dispatcher->addListener('console.terminate', function (ConsoleTerminateEvent $event) use ($self, &$passedRightValue) {
+        $dispatcher->addListener('console.terminate', function (ConsoleTerminateEvent $event) use (&$passedRightValue) {
             $passedRightValue = (4 === $event->getExitCode());
         });
 
@@ -958,8 +971,7 @@ class ApplicationTest extends TestCase
 
         // We can assume here that some other test asserts that the event is dispatched at all
         $dispatcher = new EventDispatcher();
-        $self = $this;
-        $dispatcher->addListener('console.terminate', function (ConsoleTerminateEvent $event) use ($self, &$passedRightValue) {
+        $dispatcher->addListener('console.terminate', function (ConsoleTerminateEvent $event) use (&$passedRightValue) {
             $passedRightValue = (1 === $event->getExitCode());
         });
 
